@@ -5,6 +5,9 @@ import requests
 import time
 
 DEBUG = os.environ.get("DEBUG", "").lower().startswith("y")
+REDIS_SRV = os.environ.get("REDIS_SRV", "").lower()
+RNG_SRV = os.environ.get("RNG_SRV", "").lower()
+HASHER_SRV = os.environ.get("HASHER_SRV", "").lower()
 
 log = logging.getLogger(__name__)
 if DEBUG:
@@ -14,16 +17,16 @@ else:
     logging.getLogger("requests").setLevel(logging.WARNING)
 
 
-redis = Redis("redis")
+redis = Redis(REDIS_SRV)
 
 
 def get_random_bytes():
-    r = requests.get("http://rng/32")
+    r = requests.get("http://" + RNG_SRV + "/32")
     return r.content
 
 
 def hash_bytes(data):
-    r = requests.post("http://hasher/",
+    r = requests.post("http://" + HASHER_SRV + "/",
                       data=data,
                       headers={"Content-Type": "application/octet-stream"})
     hex_hash = r.text
